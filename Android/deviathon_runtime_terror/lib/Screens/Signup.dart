@@ -1,4 +1,4 @@
-import 'package:deviathon_runtime_terror/Screens/Dashboard.dart';
+import 'package:deviathon_runtime_terror/Screens/HomePage.dart';
 import 'package:deviathon_runtime_terror/Screens/StarterPage.dart';
 import 'package:flutter/material.dart';
 
@@ -72,7 +72,7 @@ class _SignUpPageState extends State<SignUpPage> {
               );
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Dashboard()),
+                MaterialPageRoute(builder: (context) => HomePage()),
               );
             },
             child: Text("Sign Up", style: TextStyle(color: Colors.black),),

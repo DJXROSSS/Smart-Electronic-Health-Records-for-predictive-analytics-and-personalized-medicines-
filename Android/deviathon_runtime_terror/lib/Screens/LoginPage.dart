@@ -1,4 +1,4 @@
-import 'package:deviathon_runtime_terror/Screens/Dashboard.dart';
+import 'package:deviathon_runtime_terror/Screens/HomePage.dart';
 import 'package:deviathon_runtime_terror/Screens/StarterPage.dart';
 import 'package:flutter/material.dart';
 
@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
               );
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Dashboard()),
+                MaterialPageRoute(builder: (context) => HomePage()),
               );
             },
             child: Text("Login", style: TextStyle(color: Colors.black)),
