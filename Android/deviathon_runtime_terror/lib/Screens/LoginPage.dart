@@ -2,21 +2,18 @@ import 'package:deviathon_runtime_terror/Screens/Dashboard.dart';
 import 'package:deviathon_runtime_terror/Screens/StarterPage.dart';
 import 'package:flutter/material.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-// todo -- add a confirm password field
-
-final TextEditingController nameController = TextEditingController();
 final TextEditingController emailController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
 bool isPasswordVisible = false;
 
-class _SignUpPageState extends State<SignUpPage> {
+class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -25,21 +22,14 @@ class _SignUpPageState extends State<SignUpPage> {
         spacing: 10,
         children: [
           TextField(
-            controller: nameController,
-            decoration: InputDecoration(
-              labelText: "Name",
-              // icon: Icon(Icons.email_outlined),
-              prefixIcon: Icon(Icons.person_2_outlined),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-            ),
-          ),
-          TextField(
             controller: emailController,
             decoration: InputDecoration(
               labelText: "Email",
               // icon: Icon(Icons.email_outlined),
               prefixIcon: Icon(Icons.email_outlined),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
           ),
           TextField(
@@ -53,33 +43,37 @@ class _SignUpPageState extends State<SignUpPage> {
                   icon: Icon(
                     isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                   ),
-                  onPressed: () => setState(() => isPasswordVisible = !isPasswordVisible),
+                  onPressed: () =>
+                      setState(() => isPasswordVisible = !isPasswordVisible),
                 ),
               ),
               // icon: Icon(Icons.email_outlined),
               prefixIcon: Icon(Icons.password),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
           ),
           SizedBox(height: 20),
           ElevatedButton(
             style: ButtonStyle(
-                backgroundColor: WidgetStateColor.resolveWith((states) => accent)
+              backgroundColor: WidgetStateColor.resolveWith(
+                    (states) => accent,
+              ),
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Signed up as ${nameController.text}")),
+                SnackBar(content: Text("Logged in as ${emailController.text}")),
               );
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Dashboard()),
               );
             },
-            child: Text("Sign Up", style: TextStyle(color: Colors.black),),
+            child: Text("Login", style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
     );
   }
 }
-
