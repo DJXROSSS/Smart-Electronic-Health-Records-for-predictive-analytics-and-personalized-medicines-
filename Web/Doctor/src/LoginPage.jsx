@@ -1,8 +1,8 @@
 // src/LoginPage.jsx
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Stethoscope, LogIn } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Stethoscope, LogIn, UserPlus } from 'lucide-react';
 
 export default function LoginPage({ handleLogin }) {
   const [username, setUsername] = useState('');
@@ -10,18 +10,33 @@ export default function LoginPage({ handleLogin }) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Dummy credentials as requested
-  const DUMMY_USER = 'doctor';
-  const DUMMY_PASS = 'password123';
-
-  const onFormSubmit = (e) => {
+  const onFormSubmit = async (e) => {
     e.preventDefault();
-    if (username === DUMMY_USER && password === DUMMY_PASS) {
-      setError('');
-      handleLogin();
-      navigate('/dashboard'); // Redirect on successful login
-    } else {
-      setError('Invalid username or password. Please try again.');
+    setError('');
+
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Save token in localStorage
+        localStorage.setItem('token', data.token);
+
+        // Tell App that user is logged in
+        handleLogin();
+
+        navigate('/dashboard'); // Redirect on successful login
+      } else {
+        setError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Something went wrong. Please try again later.');
     }
   };
 
@@ -43,7 +58,7 @@ export default function LoginPage({ handleLogin }) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g., doctor"
+              placeholder="Enter your username"
               className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             />
@@ -54,7 +69,7 @@ export default function LoginPage({ handleLogin }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="e.g., password123"
+              placeholder="Enter your password"
               className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             />
@@ -70,6 +85,20 @@ export default function LoginPage({ handleLogin }) {
             Login
           </button>
         </form>
+
+        {/* Signup redirect */}
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Don’t have an account?{' '}
+            <Link
+              to="/signup"
+              className="text-blue-600 font-semibold hover:underline flex justify-center items-center gap-1 mt-2"
+            >
+              <UserPlus size={16} />
+              Sign Up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import DoctorDashboard from "./DoctorDashboard";
 import LandingPage from './LandingPage';
 import LoginPage from './LoginPage';
+import SignupPage from './SignupPage';
 
 function App() {
   // State to track if the user is authenticated
@@ -18,27 +19,34 @@ function App() {
   // Function to be called from DoctorDashboard to log out
   const handleLogout = () => {
     setIsAuthenticated(false);
+    localStorage.removeItem("token"); // also clear token
   };
 
   return (
     <Router>
       <Routes>
+        {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />
-        
+
+        {/* Login */}
         <Route path="/login" element={<LoginPage handleLogin={handleLogin} />} />
-        
-        <Route 
-          path="/dashboard" 
+
+        {/* Signup */}
+        <Route path="/signup" element={<SignupPage />} />
+
+        {/* Dashboard (protected route) */}
+        <Route
+          path="/dashboard"
           element={
             isAuthenticated ? (
               <DoctorDashboard handleLogout={handleLogout} />
             ) : (
-              <Navigate to="/" />
+              <Navigate to="/login" />
             )
-          } 
+          }
         />
-        
-        {/* A catch-all route to redirect any other path to the landing page */}
+
+        {/* Fallback route */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
