@@ -1,17 +1,47 @@
-import React from 'react';
-import DoctorDashboard from './DoctorDashboard';
+// src/App.jsx
+
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import DoctorDashboard from "./DoctorDashboard";
+import LandingPage from './LandingPage';
+import LoginPage from './LoginPage';
 
 function App() {
+  // State to track if the user is authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Function to be called from LoginPage on successful login
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  // Function to be called from DoctorDashboard to log out
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
+
   return (
-    // Set a background color for the whole page
-    <div className="bg-gray-100 min-h-screen"> 
-      <header className="bg-gray-800 p-5 shadow-md">
-        <h1 className="text-2xl text-white text-center font-bold">Smart EHR Dashboard</h1>
-      </header>
-      <main className="p-5 md:p-8">
-        <DoctorDashboard />
-      </main>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        
+        <Route path="/login" element={<LoginPage handleLogin={handleLogin} />} />
+        
+        <Route 
+          path="/dashboard" 
+          element={
+            isAuthenticated ? (
+              <DoctorDashboard handleLogout={handleLogout} />
+            ) : (
+              <Navigate to="/" />
+            )
+          } 
+        />
+        
+        {/* A catch-all route to redirect any other path to the landing page */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 }
 
