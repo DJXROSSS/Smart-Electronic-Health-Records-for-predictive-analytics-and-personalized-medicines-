@@ -1,3 +1,4 @@
+import 'package:deviathon_runtime_terror/Screens/history_page.dart';
 import 'package:deviathon_runtime_terror/components/ai_insight_card.dart';
 import 'package:deviathon_runtime_terror/components/history_card.dart';
 import 'package:deviathon_runtime_terror/components/recent_symptoms_card.dart';
@@ -23,7 +24,7 @@ class DashboardPage extends StatelessWidget {
             fontSize: 20,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
 
@@ -41,12 +42,12 @@ class DashboardPage extends StatelessWidget {
                   style: TextStyle(fontSize: 14, color: Colors.black54),
                 ),
                 Text(username,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold)),
               ],
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 35),
 
-            const Text("My Symptoms", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+            const Text("My Recent Symptoms", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
             const SizedBox(height: 10),
             const RecentSymptomsCard(),
 
@@ -72,6 +73,24 @@ class DashboardPage extends StatelessWidget {
                 symptoms: "Cough",
                 diagnosis: "Bronchitis",
                 prescription: "Azithromycin, steam inhalation"),
+
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryPage()));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text("Show More",
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
+              ),
+            ),
+            SizedBox(height: 70,)
           ],
         ),
       ),

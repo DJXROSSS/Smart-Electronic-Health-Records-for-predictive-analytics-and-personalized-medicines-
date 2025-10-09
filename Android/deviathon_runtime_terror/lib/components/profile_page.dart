@@ -361,26 +361,26 @@ class _ProfilePageState extends State<ProfilePage> {
             buildTextField("Contact Phone"),
 
             // Save button
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Profile Saved!")),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text("Save Changes",
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
-              ),
-            ),
-            const SizedBox(height: 40),
+            // const SizedBox(height: 20),
+            // SizedBox(
+            //   width: double.infinity,
+            //   height: 50,
+            //   child: ElevatedButton(
+            //     onPressed: () {
+            //       ScaffoldMessenger.of(context).showSnackBar(
+            //         const SnackBar(content: Text("Profile Saved!")),
+            //       );
+            //     },
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: Colors.blueAccent,
+            //       shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(12)),
+            //     ),
+            //     child: const Text("Save Changes",
+            //         style: TextStyle(color: Colors.white, fontSize: 16)),
+            //   ),
+            // ),
+            const SizedBox(height: 70),
           ],
         ),
       ),

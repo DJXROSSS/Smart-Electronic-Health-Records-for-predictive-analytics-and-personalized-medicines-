@@ -1,3 +1,4 @@
+import 'package:deviathon_runtime_terror/Screens/symptom_chat_page.dart';
 import 'package:deviathon_runtime_terror/components/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
@@ -32,17 +33,26 @@ class _HomePageState extends State<HomePage> {
 
       body: _pages[_selectedIndex],
 
-      floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton.extended(
+      // floatingActionButton: _selectedIndex == 0
+      //     ? FloatingActionButton.extended(
+      //   onPressed: () {
+      //     Navigator.push(
+      //         context, MaterialPageRoute(builder: (_) => const BookAppointmentPage()));
+      //   },
+      //   backgroundColor: Colors.blueAccent,
+      //   icon: const Icon(Icons.add),
+      //   label: const Text("New Diagnosis"),
+      // )
+      //     : null,
+      floatingActionButton:FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const BookAppointmentPage()));
+              context, MaterialPageRoute(builder: (_) => const SymptomChatPage()));
         },
         backgroundColor: Colors.blueAccent,
         icon: const Icon(Icons.add),
-        label: const Text("Book Appointment +"),
-      )
-          : null,
+        label: const Text("New Diagnosis"),
+      ),
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
