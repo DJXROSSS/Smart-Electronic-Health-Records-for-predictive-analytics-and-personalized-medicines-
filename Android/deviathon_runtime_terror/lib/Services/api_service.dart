@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://10.0.2.2:5000";
+  static const String baseUrl = "https://predictiveanalysiss.streamlit.app/";
   // replace with your backend URL if deployed
 
   static Future<Map<String, dynamic>> predictDisease(String symptoms) async {
