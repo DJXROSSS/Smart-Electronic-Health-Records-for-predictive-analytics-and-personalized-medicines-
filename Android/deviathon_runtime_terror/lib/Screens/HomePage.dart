@@ -54,6 +54,7 @@ class _HomePageState extends State<HomePage> {
         label: const Text("New Diagnosis"),
       ),
 
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,
