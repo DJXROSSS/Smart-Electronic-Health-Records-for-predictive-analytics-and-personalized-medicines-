@@ -81,17 +81,17 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// // --- Get current logged-in doctor profile ---
-// router.get("/me", authMiddleware, async (req, res) => {
-//   try {
-//     const doctor = await Doctor.findById(req.doctorId).select("-password"); // exclude password
-//     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+// --- Get current logged-in doctor profile ---
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.doctorId).select("-password"); // exclude password
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
 
-//     res.json({ doctor });
-//   } catch (err) {
-//     console.error("PROFILE FETCH ERROR:", err);
-//     res.status(500).json({ message: "Server error fetching doctor profile" });
-//   }
-// });
+    res.json({ doctor });
+  } catch (err) {
+    console.error("PROFILE FETCH ERROR:", err);
+    res.status(500).json({ message: "Server error fetching doctor profile" });
+  }
+});
 
 export default router;
