@@ -86,13 +86,7 @@
 import streamlit as st
 import joblib
 import pandas as pd
-import os # Import os for path handling
-
-# -----------------------------
-# 🎯 Load Model and Vectorizer
-# -----------------------------
-# @st.cache_resource ensures the heavy model files are loaded only once
-# when the application starts, improving performance.
+import os
 @st.cache_resource
 def load_model():
     """Loads the pre-trained model and vectorizer from disk using robust path handling."""
@@ -104,7 +98,6 @@ def load_model():
     VECTORIZER_PATH = os.path.join(BASE_DIR, "vectorizer.pkl")
 
     try:
-        # Load the user's actual model files using the full, absolute path
         st.write(f"Attempting to load model from: {MODEL_PATH}")
         model = joblib.load(MODEL_PATH)
         vectorizer = joblib.load(VECTORIZER_PATH)
@@ -112,7 +105,6 @@ def load_model():
         return model, vectorizer
     
     except FileNotFoundError:
-        # Provide detailed information if files are still missing
         st.error(
             f"🛑 Model Load Error: Required file not found. "
             f"Expected files at:\n- {MODEL_PATH}\n- {VECTORIZER_PATH}"
