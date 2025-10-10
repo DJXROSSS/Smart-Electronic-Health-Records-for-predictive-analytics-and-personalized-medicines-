@@ -5,20 +5,113 @@ import 'dashboard_page.dart';
 import 'history_page.dart';
 import 'book_appointment_page.dart';
 
+// class HomePage extends StatefulWidget {
+//   const HomePage({Key? key}) : super(key: key);
+//
+//   @override
+//   State<HomePage> createState() => _HomePageState();
+// }
+// class _HomePageState extends State<HomePage> {
+//   int _selectedIndex = 0;
+//
+//   final List<Widget> _pages = const [
+//     DashboardPage(),
+//     HistoryPage(),
+//     ProfilePage(name:'', age: '', gender: '', contact: '', allergies: '', medication: '', dob: '', condition: ''),
+//   ];
+//
+//   void _onItemTapped(int index) {
+//     setState(() {
+//       _selectedIndex = index;
+//     });
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.grey[100],
+//
+//       body: _pages[_selectedIndex],
+//
+//       // floatingActionButton: _selectedIndex == 0
+//       //     ? FloatingActionButton.extended(
+//       //   onPressed: () {
+//       //     Navigator.push(
+//       //         context, MaterialPageRoute(builder: (_) => const BookAppointmentPage()));
+//       //   },
+//       //   backgroundColor: Colors.blueAccent,
+//       //   icon: const Icon(Icons.add),
+//       //   label: const Text("New Diagnosis"),
+//       // )
+//       //     : null,
+//       floatingActionButton:FloatingActionButton.extended(
+//         onPressed: () {
+//           Navigator.push(
+//               context, MaterialPageRoute(builder: (_) => const SymptomChatPage()));
+//         },
+//         backgroundColor: Colors.blueAccent,
+//         icon: const Icon(Icons.add),
+//         label: const Text("New Diagnosis"),
+//       ),
+//
+//
+//       bottomNavigationBar: BottomNavigationBar(
+//         currentIndex: _selectedIndex,
+//         selectedItemColor: Colors.blueAccent,
+//         unselectedItemColor: Colors.grey,
+//         onTap: _onItemTapped,
+//         items: const [
+//           BottomNavigationBarItem(
+//             icon: Icon(Icons.home_outlined),
+//             label: 'Dashboard',
+//           ),
+//           BottomNavigationBarItem(
+//             icon: Icon(Icons.history),
+//             label: 'History',
+//           ),
+//           BottomNavigationBarItem(
+//             icon: Icon(Icons.person_outline),
+//             label: 'Profile',
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final ProfilePage? profileData;
+
+  const HomePage({Key? key, this.profileData}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
+
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    DashboardPage(),
-    HistoryPage(),
-    ProfilePage(),
-  ];
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const DashboardPage(),
+      const HistoryPage(),
+      widget.profileData ??
+          const ProfilePage(
+            name: '',
+            age: '',
+            gender: '',
+            contact: '',
+            allergies: '',
+            medication: '',
+            dob: '',
+            condition: '',
+          ),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,31 +123,17 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-
       body: _pages[_selectedIndex],
-
-      // floatingActionButton: _selectedIndex == 0
-      //     ? FloatingActionButton.extended(
-      //   onPressed: () {
-      //     Navigator.push(
-      //         context, MaterialPageRoute(builder: (_) => const BookAppointmentPage()));
-      //   },
-      //   backgroundColor: Colors.blueAccent,
-      //   icon: const Icon(Icons.add),
-      //   label: const Text("New Diagnosis"),
-      // )
-      //     : null,
-      floatingActionButton:FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const SymptomChatPage()));
+              context,
+              MaterialPageRoute(builder: (_) => const SymptomChatPage()));
         },
         backgroundColor: Colors.blueAccent,
         icon: const Icon(Icons.add),
         label: const Text("New Diagnosis"),
       ),
-
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,

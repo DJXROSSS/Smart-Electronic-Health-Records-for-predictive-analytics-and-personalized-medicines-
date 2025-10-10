@@ -1,4 +1,4 @@
-import 'package:deviathon_runtime_terror/Screens/StarterPage.dart';
+import 'package:deviathon_runtime_terror/Screens/LoginPage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: Starterpage(),
+      home: LoginPage(),
     );
   }
 }
