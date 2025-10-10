@@ -108,7 +108,7 @@ def load_model():
         st.write(f"Attempting to load model from: {MODEL_PATH}")
         model = joblib.load(MODEL_PATH)
         vectorizer = joblib.load(VECTORIZER_PATH)
-        st.success("✅ Model and Vectorizer loaded successfully!")
+        st.success("")
         return model, vectorizer
     
     except FileNotFoundError:
