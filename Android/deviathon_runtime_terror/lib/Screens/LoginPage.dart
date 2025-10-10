@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString("token", data["token"]);
         await prefs.setString("name", data["user"]["name"]);
-
+        await prefs.setString("email", data["user"]["email"]);
         // Navigate to HomePage on success
         if (mounted) { // Check if the widget is still in the tree
           Navigator.pushReplacement(

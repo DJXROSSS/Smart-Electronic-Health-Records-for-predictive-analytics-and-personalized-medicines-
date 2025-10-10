@@ -1,86 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken"); // <-- Added for login
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-require("dotenv").config(); // <-- Added for JWT secret key
+require("dotenv").config();
 
-// SIGNUP ROUTE
-router.post("/signup", async (req, res) => {
-  try {
-    const { name, email, password, age, gender, contact, allergies, medications, dob, conditions } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: "Please fill all required fields" });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ error: "Email already registered" });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-      age,
-      gender,
-      contact,
-      allergies,
-      medications,
-      dob,
-      conditions
-    });
-
-    await newUser.save();
-    return res.status(201).json({ message: "User registered successfully!" });
-
-  } catch (err) {
-    console.error("Signup Error:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
-});
-
-// LOGIN ROUTE (This is the missing part)
-router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ error: "Email and password are required!" });
-    }
-
-    try {
-        // Find user by email
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ error: "Invalid credentials" }); // More secure message
-        }
-
-        // Compare submitted password with stored hashed password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ error: "Invalid credentials" }); // More secure message
-        }
-
-        // User is authenticated, create a JWT token
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: "7d" }
-        );
-
-        // Send token and user info back to the app
-        res.json({
-            message: "Login successful",
-            token,
-            user: { id: user._id, name: user.name, email: user.email }
-        });
-
-    } catch (err) {
-        console.error("Login Error:", err);
-        res.status(500).json({ error: "Server error" });
-    }
-});
+// ... (Your existing SIGNUP and LOGIN routes go here) ...
+router.post("/signup", async (req, res) => { /* ... */ });
+router.post("/login", async (req, res) => { /* ... */ });
 
 
 // FETCH PROFILE ROUTE
@@ -94,5 +21,34 @@ router.get("/profile/:email", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+// ✅ ADD THIS ROUTE TO UPDATE THE PROFILE
+router.put("/profile/update", async (req, res) => {
+    try {
+        const { email, ...updateData } = req.body; // Separate email from the rest of the data
+
+        if (!email) {
+            return res.status(400).json({ error: "Email is required to identify the user." });
+        }
+
+        // Find the user by email and update their data
+        const updatedUser = await User.findOneAndUpdate(
+            { email: email }, // Find document with this email
+            { $set: updateData }, // Apply the updates
+            { new: true, runValidators: true } // Options: return the new doc, run schema validators
+        ).select("-password");
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        res.json({ message: "Profile updated successfully!", user: updatedUser });
+
+    } catch(err) {
+        console.error("Profile Update Error:", err);
+        res.status(500).json({ error: "Server error during profile update." });
+    }
+});
+
 
 module.exports = router;

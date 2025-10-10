@@ -1,497 +1,156 @@
-// import 'package:flutter/material.dart';
-//
-// class ProfilePage extends StatefulWidget {
-//   const ProfilePage({super.key});
-//
-//   @override
-//   State<ProfilePage> createState() => _ProfilePageState();
-// }
-//
-// class _ProfilePageState extends State<ProfilePage> {
-//   // We'll track the enabled state for each field separately
-//   final Map<String, bool> enabledMap = {};
-//
-//   // Controllers for text fields
-//   final Map<String, TextEditingController> controllers = {};
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//
-//     // Initialize all fields with data and disabled state
-//     controllers.addAll({
-//       "Full Name": TextEditingController(text: "Sophia Carter"),
-//       "Date of Birth": TextEditingController(text: "October 23, 1990"),
-//       "Gender": TextEditingController(text: "Female"),
-//       "Address": TextEditingController(text: "123 Wellness Way, Healthtown"),
-//       "Phone Number": TextEditingController(text: "(123) 456-7890"),
-//       "Allergies": TextEditingController(text: "Pollen, Penicillin"),
-//       "Current Medications":
-//       TextEditingController(text: "Albuterol Inhaler (as needed)"),
-//       "Chronic Conditions": TextEditingController(text: "Asthma"),
-//       "Contact Name": TextEditingController(text: "John Carter"),
-//       "Relationship": TextEditingController(text: "Spouse"),
-//       "Contact Phone": TextEditingController(text: "(123) 456-7891"),
-//     });
-//
-//     // Initially, all fields are disabled
-//     for (var key in controllers.keys) {
-//       enabledMap[key] = false;
-//     }
-//   }
-//
-//   Widget buildTextField(String label, {bool multi = false}) {
-//     bool enabled = enabledMap[label] ?? false;
-//
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-//         const SizedBox(height: 6),
-//         Row(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Expanded(
-//               child: TextFormField(
-//                 controller: controllers[label],
-//                 enabled: enabled,
-//                 maxLines: multi ? 3 : 1,
-//                 textInputAction: TextInputAction.done,
-//                 onFieldSubmitted: (_) {
-//                   setState(() => enabledMap[label] = false);
-//                 },
-//                 decoration: InputDecoration(
-//                   filled: true,
-//                   fillColor: enabled ? Colors.white : Colors.grey[100],
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(12),
-//                     borderSide: const BorderSide(color: Colors.grey),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(width: 8),
-//             IconButton(
-//               onPressed: () {
-//                 setState(() => enabledMap[label] = !enabled);
-//               },
-//               icon: Icon(
-//                 enabled ? Icons.done : Icons.edit,
-//                 color: Colors.blueAccent,
-//               ),
-//             ),
-//           ],
-//         ),
-//         const SizedBox(height: 16),
-//       ],
-//     );
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         leading: const BackButton(color: Colors.black),
-//         backgroundColor: Colors.transparent,
-//         elevation: 0,
-//         title: const Text(
-//           "Profile",
-//           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-//         ),
-//       ),
-//       body: SingleChildScrollView(
-//         padding: const EdgeInsets.all(16),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             // Profile header
-//             Stack(
-//               children: [
-//                 CircleAvatar(
-//                   radius: 60,
-//                   backgroundImage: const AssetImage('assets/images/woman.png'),
-//                   backgroundColor: Colors.blue[50],
-//                 ),
-//                 Positioned(
-//                   bottom: 0,
-//                   right: 0,
-//                   child: CircleAvatar(
-//                     backgroundColor: Colors.blueAccent,
-//                     radius: 18,
-//                     child: const Icon(Icons.edit, size: 18, color: Colors.white),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             const SizedBox(height: 12),
-//             const Text("Sophia Carter",
-//                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-//             const Text("Patient ID: 123456",
-//                 style: TextStyle(color: Colors.grey)),
-//             const SizedBox(height: 24),
-//
-//             // Personal Information
-//             const Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text("Personal Information",
-//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//             ),
-//             const SizedBox(height: 10),
-//             buildTextField("Full Name"),
-//             buildTextField("Date of Birth"),
-//             buildTextField("Gender"),
-//             buildTextField("Address"),
-//             buildTextField("Phone Number"),
-//
-//             // Medical History
-//             const Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text("Medical History",
-//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//             ),
-//             const SizedBox(height: 10),
-//             buildTextField("Allergies", multi: true),
-//             buildTextField("Current Medications", multi: true),
-//             buildTextField("Chronic Conditions", multi: true),
-//
-//             // Emergency Contacts
-//             const Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text("Emergency Contacts",
-//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//             ),
-//             const SizedBox(height: 10),
-//             buildTextField("Contact Name"),
-//             buildTextField("Relationship"),
-//             buildTextField("Contact Phone"),
-//
-//             // Save button
-//             const SizedBox(height: 20),
-//             SizedBox(
-//               width: double.infinity,
-//               height: 50,
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   ScaffoldMessenger.of(context).showSnackBar(
-//                     const SnackBar(content: Text("Profile Saved!")),
-//                   );
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: Colors.blueAccent,
-//                   shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(12)),
-//                 ),
-//                 child: const Text("Save Changes",
-//                     style: TextStyle(color: Colors.white, fontSize: 16)),
-//               ),
-//             ),
-//             const SizedBox(height: 40),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// import 'package:flutter/material.dart';
-//
-// class ProfilePage extends StatefulWidget {
-//   const ProfilePage({super.key, required String name, required String age,
-//     required String gender, required String contact, required String allergies, required String medication, required String dob});
-//
-//   @override
-//   State<ProfilePage> createState() => _ProfilePageState();
-// }
-//
-// class _ProfilePageState extends State<ProfilePage> {
-//   // We'll track the enabled state for each field separately
-//   final Map<String, bool> enabledMap = {};
-//
-//   // Controllers for text fields
-//   final Map<String, TextEditingController> controllers = {};
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//
-//     // Initialize all fields with data and disabled state
-//     controllers.addAll({
-//       "Full Name": TextEditingController(text: "Sophia Carter"),
-//       "Date of Birth": TextEditingController(text: "October 23, 1990"),
-//       "Gender": TextEditingController(text: "Female"),
-//       "Address": TextEditingController(text: "123 Wellness Way, Healthtown"),
-//       "Phone Number": TextEditingController(text: "(123) 456-7890"),
-//       "Allergies": TextEditingController(text: "Pollen, Penicillin"),
-//       "Current Medications":
-//       TextEditingController(text: "Albuterol Inhaler (as needed)"),
-//       "Chronic Conditions": TextEditingController(text: "Asthma"),
-//       "Contact Name": TextEditingController(text: "John Carter"),
-//       "Relationship": TextEditingController(text: "Spouse"),
-//       "Contact Phone": TextEditingController(text: "(123) 456-7891"),
-//     });
-//
-//     // Initially, all fields are disabled
-//     for (var key in controllers.keys) {
-//       enabledMap[key] = false;
-//     }
-//   }
-//
-//   Widget buildTextField(String label, {bool multi = false}) {
-//     bool enabled = enabledMap[label] ?? false;
-//
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-//         const SizedBox(height: 6),
-//         Row(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Expanded(
-//               child: TextFormField(
-//                 controller: controllers[label],
-//                 enabled: enabled,
-//                 maxLines: multi ? 3 : 1,
-//                 textInputAction: TextInputAction.done,
-//                 onFieldSubmitted: (_) {
-//                   setState(() => enabledMap[label] = false);
-//                 },
-//                 decoration: InputDecoration(
-//                   filled: true,
-//                   fillColor: enabled ? Colors.white : Colors.grey[100],
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(12),
-//                     borderSide: const BorderSide(color: Colors.grey),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(width: 8),
-//             IconButton(
-//               onPressed: () {
-//                 setState(() => enabledMap[label] = !enabled);
-//               },
-//               icon: Icon(
-//                 enabled ? Icons.done : Icons.edit,
-//                 color: Colors.blueAccent,
-//               ),
-//             ),
-//           ],
-//         ),
-//         const SizedBox(height: 16),
-//       ],
-//     );
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         leading: const BackButton(color: Colors.black),
-//         backgroundColor: Colors.transparent,
-//         elevation: 0,
-//         title: const Text(
-//           "Profile",
-//           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-//         ),
-//       ),
-//       body: SingleChildScrollView(
-//         padding: const EdgeInsets.all(16),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             // Profile header
-//             Stack(
-//               children: [
-//                 CircleAvatar(
-//                   radius: 60,
-//                   backgroundImage: const AssetImage('assets/images/woman.png'),
-//                   backgroundColor: Colors.blue[50],
-//                 ),
-//                 Positioned(
-//                   bottom: 0,
-//                   right: 0,
-//                   child: CircleAvatar(
-//                     backgroundColor: Colors.blueAccent,
-//                     radius: 18,
-//                     child: const Icon(Icons.edit, size: 18, color: Colors.white),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             const SizedBox(height: 12),
-//             const Text("Sophia Carter",
-//                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-//             const Text("Patient ID: 123456",
-//                 style: TextStyle(color: Colors.grey)),
-//             const SizedBox(height: 24),
-//
-//             // Personal Information
-//             const Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text("Personal Information",
-//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//             ),
-//             const SizedBox(height: 10),
-//             buildTextField("Full Name"),
-//             buildTextField("Date of Birth"),
-//             buildTextField("Gender"),
-//             buildTextField("Address"),
-//             buildTextField("Phone Number"),
-//
-//             // Medical History
-//             const Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text("Medical History",
-//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//             ),
-//             const SizedBox(height: 10),
-//             buildTextField("Allergies", multi: true),
-//             buildTextField("Current Medications", multi: true),
-//             buildTextField("Chronic Conditions", multi: true),
-//
-//             // Emergency Contacts
-//             const Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text("Emergency Contacts",
-//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//             ),
-//             const SizedBox(height: 10),
-//             buildTextField("Contact Name"),
-//             buildTextField("Relationship"),
-//             buildTextField("Contact Phone"),
-//
-//             // Save button
-//             const SizedBox(height: 20),
-//             SizedBox(
-//               width: double.infinity,
-//               height: 50,
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   ScaffoldMessenger.of(context).showSnackBar(
-//                     const SnackBar(content: Text("Profile Saved!")),
-//                   );
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: Colors.blueAccent,
-//                   shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(12)),
-//                 ),
-//                 child: const Text("Save Changes",
-//                     style: TextStyle(color: Colors.white, fontSize: 16)),
-//               ),
-//             ),
-//             const SizedBox(height: 40),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class ProfilePage extends StatefulWidget {
-  final String name;
-  final String age;
-  final String gender;
-  final String contact;
-  final String allergies;
-  final String medication;
-  final String dob;
-  final String condition;
-
-  const ProfilePage({
-    super.key,
-    required this.name,
-    required this.age,
-    required this.gender,
-    required this.contact,
-    required this.allergies,
-    required this.medication,
-    required this.dob,
-    required this.condition,
-  });
+  // No longer needs parameters, as it will fetch its own data.
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _isLoading = true;
+  String? _errorMessage;
+  String _userEmail = ''; // To store the logged-in user's email
+
   final Map<String, bool> enabledMap = {};
-  final Map<String, TextEditingController> controllers = {};
+  final Map<String, TextEditingController> controllers = {
+    // Initialize with empty controllers first
+    "Full Name": TextEditingController(),
+    "Date of Birth": TextEditingController(),
+    "Gender": TextEditingController(),
+    "Phone Number": TextEditingController(),
+    "Allergies": TextEditingController(),
+    "Current Medications": TextEditingController(),
+    "Chronic Conditions": TextEditingController(),
+    // Add other fields from your UI
+    "Age": TextEditingController(),
+    "Address": TextEditingController(),
+    "Contact Name": TextEditingController(),
+    "Relationship": TextEditingController(),
+    "Contact Phone": TextEditingController(),
+  };
 
   @override
   void initState() {
     super.initState();
-
-    // ✅ Initialize all controllers with data passed from EditProfilePage
-    controllers.addAll({
-      "Full Name": TextEditingController(text: widget.name),
-      "Date of Birth": TextEditingController(text: widget.dob),
-      "Gender": TextEditingController(text: widget.gender),
-      "Phone Number": TextEditingController(text: widget.contact),
-      "Allergies": TextEditingController(text: widget.allergies),
-      "Current Medications": TextEditingController(text: widget.medication),
-      "Age": TextEditingController(text: widget.age),
-      "Address": TextEditingController(text: ""),
-      "Chronic Conditions": TextEditingController(text: ""),
-      "Contact Name": TextEditingController(text: ""),
-      "Relationship": TextEditingController(text: ""),
-      "Contact Phone": TextEditingController(text: ""),
-    });
-
     // Initially, all fields are disabled
     for (var key in controllers.keys) {
       enabledMap[key] = false;
     }
+    _fetchUserProfile();
   }
 
-  Widget buildTextField(String label, {bool multi = false}) {
-    bool enabled = enabledMap[label] ?? false;
+  Future<void> _fetchUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Assuming you save the user's email with the key 'email' after login
+    final email = prefs.getString('email');
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-        const SizedBox(height: 6),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: controllers[label],
-                enabled: enabled,
-                maxLines: multi ? 3 : 1,
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) {
-                  setState(() => enabledMap[label] = false);
-                },
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: enabled ? Colors.white : Colors.grey[100],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.grey),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              onPressed: () {
-                setState(() => enabledMap[label] = !enabled);
-              },
-              icon: Icon(
-                enabled ? Icons.done : Icons.edit,
-                color: Colors.blueAccent,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-      ],
+    if (email == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "Could not find user email. Please log in again.";
+      });
+      return;
+    }
+
+    setState(() {
+      _userEmail = email;
+    });
+
+    // Replace with your actual server IP address
+    final url = Uri.parse('http://10.156.194.228:5000/api/user/profile/$email');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Populate controllers with data from the database
+        setState(() {
+          controllers["Full Name"]?.text = data['name'] ?? '';
+          controllers["Date of Birth"]?.text = data['dob'] ?? '';
+          controllers["Gender"]?.text = data['gender'] ?? '';
+          controllers["Phone Number"]?.text = data['contact'] ?? '';
+          controllers["Allergies"]?.text = data['allergies'] ?? '';
+          controllers["Current Medications"]?.text = data['medications'] ?? '';
+          controllers["Chronic Conditions"]?.text = data['conditions'] ?? '';
+          controllers["Age"]?.text = data['age']?.toString() ?? '';
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = "Failed to load profile. Server returned ${response.statusCode}";
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Network error: $e";
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveProfileChanges() async {
+    // Show a loading indicator on the button or screen
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Saving...")),
     );
+
+    final url = Uri.parse('http://10.156.194.228:5000/api/user/profile/update');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _userEmail, // Crucial for identifying which user to update
+          'name': controllers['Full Name']?.text,
+          'dob': controllers['Date of Birth']?.text,
+          'gender': controllers['Gender']?.text,
+          'contact': controllers['Phone Number']?.text,
+          'allergies': controllers['Allergies']?.text,
+          'medications': controllers['Current Medications']?.text,
+          'conditions': controllers['Chronic Conditions']?.text,
+          'age': int.tryParse(controllers['Age']?.text ?? '0'),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(backgroundColor: Colors.green, content: Text("Profile Saved Successfully!")),
+        );
+        // Optionally disable all fields again after saving
+        setState(() {
+          for (var key in enabledMap.keys) {
+            enabledMap[key] = false;
+          }
+        });
+      } else {
+        final errorData = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text("Error: ${errorData['error']}")),
+        );
+      }
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(backgroundColor: Colors.red, content: Text("Network Error: $e")),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controllers when the widget is disposed.
+    for (var controller in controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -506,98 +165,146 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
-      body: SingleChildScrollView(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+          ? Center(child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)))
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Profile header
-            Stack(
-              children: [
-                CircleAvatar(
-                  radius: 60,
-                  backgroundImage: const AssetImage('assets/images/woman.png'),
-                  backgroundColor: Colors.blue[50],
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.blueAccent,
-                    radius: 18,
-                    child: const Icon(Icons.edit, size: 18, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(widget.name,
-                style:
-                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const Text("Patient ID: 123456",
-                style: TextStyle(color: Colors.grey)),
+            // Profile Header
+            buildProfileHeader(),
             const SizedBox(height: 24),
 
-            // Personal Information
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Personal Information",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 10),
-            buildTextField("Full Name"),
-            buildTextField("Date of Birth"),
-            buildTextField("Age"),
-            buildTextField("Gender"),
-            buildTextField("Phone Number"),
+            // Sections
+            buildSection("Personal Information", [
+              "Full Name",
+              "Date of Birth",
+              "Age",
+              "Gender",
+              "Phone Number",
+            ]),
+            buildSection("Medical History", [
+              "Allergies",
+              "Current Medications",
+              "Chronic Conditions",
+            ], isMulti: true),
+            buildSection("Emergency Contacts", [
+              "Contact Name",
+              "Relationship",
+              "Contact Phone",
+            ]),
 
-            // Medical History
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Medical History",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            // Save Button
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _saveProfileChanges,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text("Save Changes",
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
+              ),
             ),
-            const SizedBox(height: 10),
-            buildTextField("Allergies", multi: true),
-            buildTextField("Current Medications", multi: true),
-            buildTextField("Chronic Conditions", multi: true),
-
-            // Emergency Contacts
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Emergency Contacts",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 10),
-            buildTextField("Contact Name"),
-            buildTextField("Relationship"),
-            buildTextField("Contact Phone"),
-
-            // Save button
-            // const SizedBox(height: 20),
-            // SizedBox(
-            //   width: double.infinity,
-            //   height: 50,
-            //   child: ElevatedButton(
-            //     onPressed: () {
-            //       ScaffoldMessenger.of(context).showSnackBar(
-            //         const SnackBar(content: Text("Profile Saved!")),
-            //       );
-            //     },
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: Colors.blueAccent,
-            //       shape: RoundedRectangleBorder(
-            //           borderRadius: BorderRadius.circular(12)),
-            //     ),
-            //     child: const Text("Save Changes",
-            //         style: TextStyle(color: Colors.white, fontSize: 16)),
-            //   ),
-            // ),
-            const SizedBox(height: 70),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
-}
 
+  // --- Helper Widgets for Cleaner Build Method ---
+
+  Widget buildProfileHeader() {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: const AssetImage('assets/images/woman.png'),
+              backgroundColor: Colors.blue[50],
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: CircleAvatar(
+                backgroundColor: Colors.blueAccent,
+                radius: 18,
+                child: const Icon(Icons.edit, size: 18, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        // Use the controller's text for a dynamic name display
+        Text(controllers["Full Name"]?.text ?? 'User Name',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text("Patient ID: 123456", style: TextStyle(color: Colors.grey)),
+      ],
+    );
+  }
+
+  Widget buildSection(String title, List<String> fields, {bool isMulti = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        ...fields.map((field) => buildTextField(field, multi: isMulti)).toList(),
+      ],
+    );
+  }
+
+  Widget buildTextField(String label, {bool multi = false}) {
+    bool enabled = enabledMap[label] ?? false;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: controllers[label],
+                  enabled: enabled,
+                  maxLines: multi ? 3 : 1,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => setState(() => enabledMap[label] = false),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: enabled ? Colors.white : Colors.grey[200],
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => setState(() => enabledMap[label] = !enabled),
+                icon: Icon(enabled ? Icons.done : Icons.edit, color: Colors.blueAccent),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
