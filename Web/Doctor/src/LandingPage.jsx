@@ -35,7 +35,7 @@ export default function LandingPage() {
       <header className="absolute top-0 left-0 w-full p-6 z-10">
         <div className="flex items-center gap-3">
           <Stethoscope className="text-indigo-400" size={28} />
-          <span className="text-xl font-bold tracking-tight">SmartEHR</span>
+          <span className="text-xl font-bold tracking-tight">ᴹᴱᴰᴵCONNECT</span>
         </div>
       </header>
       
