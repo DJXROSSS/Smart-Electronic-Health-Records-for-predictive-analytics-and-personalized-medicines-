@@ -1,33 +1,46 @@
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
 import joblib
 
+# -------------------------------
+# 1️⃣ Load and Clean Data
+# -------------------------------
+train_df = pd.read_csv("Training.csv")
+test_df = pd.read_csv("Testing.csv")
 
-# Read CSV and skip lines with too many/few columns
-df = pd.read_csv("dataset.csv", on_bad_lines='skip')
-print(f"✅ Loaded {len(df)} rows successfully!")
+# Drop unnamed column if it exists
+train_df = train_df.loc[:, ~train_df.columns.str.contains('^Unnamed')]
+test_df = test_df.loc[:, ~test_df.columns.str.contains('^Unnamed')]
 
-# Features and labels
+print(f"✅ Loaded training data: {train_df.shape[0]} rows, {train_df.shape[1]} columns")
+print(f"✅ Loaded testing data: {test_df.shape[0]} rows, {test_df.shape[1]} columns")
 
-# Features and labels
-X = df['symptoms']
-y = df['disease']
+# -------------------------------
+# 2️⃣ Split Features and Labels
+# -------------------------------
+X_train = train_df.drop(columns=['prognosis'])
+y_train = train_df['prognosis']
 
-# Convert text to numeric
-vectorizer = TfidfVectorizer()
-X_vect = vectorizer.fit_transform(X)
+X_test = test_df.drop(columns=['prognosis'])
+y_test = test_df['prognosis']
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X_vect, y, test_size=0.2, random_state=42)
-
-# Train model
-model = RandomForestClassifier(n_estimators=100, random_state=42)
+# -------------------------------
+# 3️⃣ Train Model
+# -------------------------------
+model = RandomForestClassifier(n_estimators=200, random_state=42)
 model.fit(X_train, y_train)
 
-# Save model and vectorizer
-joblib.dump(model, "disease_model.pkl")
-joblib.dump(vectorizer, "vectorizer.pkl")
+# -------------------------------
+# 4️⃣ Evaluate Model
+# -------------------------------
+y_pred = model.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+print(f"🎯 Model Accuracy: {acc*100:.2f}%")
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
-print("✅ Model and vectorizer saved successfully!")
+# -------------------------------
+# 5️⃣ Save Model
+# -------------------------------
+joblib.dump(model, "disease_model.pkl")
+print("✅ Model saved successfully as 'disease_model.pkl'")

@@ -1,4 +1,4 @@
-#!/home/monarch/disease_api/venv/bin/python3
+#!/home/monarch/deviathon_project/Backend/disease_api/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
