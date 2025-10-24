@@ -45,13 +45,13 @@ Built in **48 hours during a national-level hackathon (Deviathon 2025)**, this p
 ## ⚙️ Architecture
 
 Patient App (Flutter)
-↓
+->
 REST API (Node.js / Express.js)
-↓
+->
 Machine Learning Service (Python)
-↓
+->
 MongoDB Atlas (Cloud Database)
-↓
+->
 Doctor Portal (React.js)
 
 ## 🏅 Achievements
