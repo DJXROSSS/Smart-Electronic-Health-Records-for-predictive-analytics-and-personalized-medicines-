@@ -5,50 +5,61 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 require("dotenv").config();
 
-// ... (Your existing SIGNUP and LOGIN routes go here) ...
-router.post("/signup", async (req, res) => { /* ... */ });
-router.post("/login", async (req, res) => { /* ... */ });
+// Signup Route
+router.post("/signup", async (req, res) => {
+    const { name, email, password, age, gender, contact } = req.body;
 
+    if (!name || !email || !password) {
+        return res.status(400).json({ error: "Name, email, and password are required!" });
+    }
 
-// FETCH PROFILE ROUTE
-router.get("/profile/:email", async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.params.email }).select("-password");
-    if (!user) return res.status(404).json({ error: "User not found" });
-    res.json(user);
-  } catch (err) {
-    console.error("Profile Fetch Error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// ✅ ADD THIS ROUTE TO UPDATE THE PROFILE
-router.put("/profile/update", async (req, res) => {
     try {
-        const { email, ...updateData } = req.body; // Separate email from the rest of the data
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ error: "Email already exists!" });
 
-        if (!email) {
-            return res.status(400).json({ error: "Email is required to identify the user." });
-        }
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Find the user by email and update their data
-        const updatedUser = await User.findOneAndUpdate(
-            { email: email }, // Find document with this email
-            { $set: updateData }, // Apply the updates
-            { new: true, runValidators: true } // Options: return the new doc, run schema validators
-        ).select("-password");
+        const user = new User({
+            name,
+            email,
+            password: hashedPassword,
+            age,
+            gender,
+            contact
+        });
 
-        if (!updatedUser) {
-            return res.status(404).json({ error: "User not found." });
-        }
-
-        res.json({ message: "Profile updated successfully!", user: updatedUser });
-
-    } catch(err) {
-        console.error("Profile Update Error:", err);
-        res.status(500).json({ error: "Server error during profile update." });
+        await user.save();
+        res.status(201).json({ message: "User registered successfully!" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
     }
 });
 
+// Login Route
+router.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) return res.status(400).json({ error: "Email and password required!" });
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ error: "User not found!" });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ error: "Invalid password!" });
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+        res.json({
+            message: "Login successful",
+            token,
+            user: { id: user._id, name: user.name, email: user.email }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
 
 module.exports = router;

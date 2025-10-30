@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Signup.dart'; // Make sure you have this file in your project
-import 'HomePage.dart'; // Make sure you have this file in your project
+import 'Signup.dart';
+import 'HomePage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,27 +14,23 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isPasswordVisible = false;
-  final Color accent = Color(0xFF81D4FA);
   String? _errorMessage;
-  bool _isLoading = false; // To show a loading indicator
+  bool _isLoading = false;
 
   Future<void> loginUser() async {
-    // Clear previous errors and set loading state
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      setState(() => _errorMessage = "Please enter email and password!");
+      return;
+    }
+
     setState(() {
       _errorMessage = null;
       _isLoading = true;
     });
-
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      setState(() {
-        _errorMessage = "Please enter both email and password.";
-        _isLoading = false;
-      });
-      return;
-    }
 
     try {
       final response = await http.post(
@@ -44,49 +40,29 @@ class _LoginPageState extends State<LoginPage> {
           "email": emailController.text,
           "password": passwordController.text
         }),
-      ).timeout(const Duration(seconds: 10)); // Added a timeout for better UX
+      );
 
-      // --- CRUCIAL DEBUGGING PRINTS ---
-      // These lines will show you exactly what the server is sending back.
-      debugPrint('Status Code: ${response.statusCode}');
-      debugPrint('Response Body: ${response.body}');
-      // --- END OF DEBUGGING PRINTS ---
+      final data = jsonDecode(response.body);
+      if (mounted) {
+        if (response.statusCode == 200) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("token", data["token"]);
+          await prefs.setString("name", data["user"]["name"]);
 
-      if (response.statusCode == 200) {
-        // Successful login
-        final data = jsonDecode(response.body);
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("token", data["token"]);
-        await prefs.setString("name", data["user"]["name"]);
-        await prefs.setString("email", data["user"]["email"]);
-        // Navigate to HomePage on success
-        if (mounted) { // Check if the widget is still in the tree
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const HomePage()),
           );
+        } else {
+          setState(() => _errorMessage = data["error"] ?? "Login failed!");
         }
-      } else {
-        // Handle server errors (like 400, 401, 500)
-        String errorMessage = "An unknown error occurred.";
-        try {
-          // Try to parse a JSON error message from the server
-          final data = jsonDecode(response.body);
-          errorMessage = data["error"] ?? "Login failed. Please check your credentials.";
-        } catch (e) {
-          // If the response is not JSON (like the HTML error page you received)
-          errorMessage = "Server returned an unexpected response. Please try again later.";
-          debugPrint("Failed to decode JSON from error response: $e");
-        }
-        setState(() => _errorMessage = errorMessage);
       }
     } catch (e) {
-      // Handle network errors (no connection, timeout, etc.)
-      debugPrint("Network or other error: $e");
-      setState(() => _errorMessage = "Network error. Please check your connection and try again.");
+      if (mounted) {
+        setState(() => _errorMessage = "Network error! Please check your connection.");
+      }
     } finally {
-      // Ensure the loading indicator is turned off
-      if(mounted) {
+      if (mounted) {
         setState(() => _isLoading = false);
       }
     }
@@ -94,95 +70,211 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF0D47A1); // A deep blue
+    const accentColor = Color(0xFF42A5F5); // A lighter, friendly blue
+
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 60), // Added space for status bar
-                CircleAvatar(radius: 50, backgroundColor: const Color(0xFFE3F2FD), child: Icon(Icons.person, size: 50, color: accent)),
-                const SizedBox(height: 20),
-                const Text("Welcome to MedVault!", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black54), textAlign: TextAlign.center),
-                const SizedBox(height: 20),
-                const Text("All your health records here, just one tap away!", style: TextStyle(fontSize: 16, color: Colors.black54), textAlign: TextAlign.center),
-                const SizedBox(height: 40),
-
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 40),
+                  // --- HEADER SECTION ---
+                  Icon(
+                    Icons.health_and_safety_rounded,
+                    size: 80,
+                    color: primaryColor,
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 20),
-
-                TextField(
-                  controller: passwordController,
-                  obscureText: !isPasswordVisible,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                      onPressed: () => setState(() => isPasswordVisible = !isPasswordVisible),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Welcome Back!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
                   ),
-                ),
-
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 15),
-                  Text(_errorMessage!, style: const TextStyle(color: Colors.red, fontSize: 14), textAlign: TextAlign.center),
-                ],
-
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () { /* Forgot password logic here */ },
-                    child: Text("Forgot Password?", style: TextStyle(color: Colors.blueAccent[700], fontSize: 14)),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Log in to continue your health journey.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 50),
 
-                _isLoading
-                    ? CircularProgressIndicator(color: accent)
-                    : ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: accent,
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 80),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                  // --- FORM FIELDS ---
+                  _buildTextField(
+                    controller: emailController,
+                    labelText: "Email Address",
+                    prefixIcon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
                   ),
-                  onPressed: loginUser,
-                  child: const Text("Login", style: TextStyle(color: Colors.white, fontSize: 16)),
-                ),
+                  const SizedBox(height: 16),
+                  _buildPasswordField(
+                    controller: passwordController,
+                    labelText: "Password",
+                  ),
+                  const SizedBox(height: 10),
 
-                const SizedBox(height: 20),
-                RichText(
-                  text: TextSpan(
-                    text: "Don't have an account? ",
-                    style: const TextStyle(color: Colors.black, fontSize: 14),
-                    children: [
-                      TextSpan(
-                        text: "Sign Up",
-                        style: TextStyle(color: Colors.blueAccent[700], fontWeight: FontWeight.bold),
-                        recognizer: TapGestureRecognizer()..onTap = () {
-                          if (!_isLoading) { // Prevent navigation while loading
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignUpPage()));
-                          }
-                        },
+                  // --- FORGOT PASSWORD ---
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        // Forgot password logic can go here
+                      },
+                      child: const Text(
+                        "Forgot Password?",
+                        style: TextStyle(
+                          color: accentColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 10),
+
+                  // --- ERROR MESSAGE ---
+                  if (_errorMessage != null)
+                    Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                    ),
+                  const SizedBox(height: 20),
+
+                  // --- LOGIN BUTTON ---
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 5,
+                    ),
+                    onPressed: _isLoading ? null : loginUser,
+                    child: _isLoading
+                        ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 3,
+                      ),
+                    )
+                        : const Text(
+                      "Log In",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // --- SIGN UP REDIRECT ---
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      text: "Don't have an account? ",
+                      style: const TextStyle(color: Colors.black54, fontSize: 14),
+                      children: [
+                        TextSpan(
+                          text: "Sign Up",
+                          style: const TextStyle(
+                            color: accentColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              if (!_isLoading) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const SignUpPage()),
+                                );
+                              }
+                            },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  // --- WIDGET BUILDER METHODS ---
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required IconData prefixIcon,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(prefixIcon, color: Colors.grey[600]),
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Color(0xFF42A5F5)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String labelText,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: !isPasswordVisible,
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[600]),
+        suffixIcon: IconButton(
+          icon: Icon(
+            isPasswordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+            color: Colors.grey[600],
+          ),
+          onPressed: () => setState(() => isPasswordVisible = !isPasswordVisible),
+        ),
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Color(0xFF42A5F5)),
         ),
       ),
     );

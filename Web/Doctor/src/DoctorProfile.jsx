@@ -20,7 +20,7 @@ export default function DoctorProfile({ handleLogout }) {
       }
 
       try {
-        const res = await axios.get('http://localhost:5000/api/profile', {
+        const res = await axios.get('http://localhost:5002/api/profile', {
           headers: { 'x-auth-token': token },
         });
         setDoctor(res.data);

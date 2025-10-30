@@ -3,9 +3,12 @@ import 'package:deviathon_runtime_terror/components/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 import 'history_page.dart';
+import 'book_appointment_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final ProfilePage? profileData;
+
+  const HomePage({Key? key, this.profileData}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -14,13 +17,27 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  // This list holds the pages that the bottom navigation bar will switch between.
-  // ProfilePage() is called without any arguments because it now fetches its own data.
-  final List<Widget> _pages = const [
-    DashboardPage(),
-    HistoryPage(),
-    ProfilePage(),
-  ];
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const DashboardPage(),
+      const HistoryPage(),
+      widget.profileData ??
+          const ProfilePage(
+            name: '',
+            age: '',
+            gender: '',
+            contact: '',
+            allergies: '',
+            medication: '',
+            dob: '',
+            condition: '',
+          ),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -32,24 +49,17 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      // The body displays the currently selected page from the _pages list.
       body: _pages[_selectedIndex],
-
-      // This button is always visible for starting a new diagnosis.
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SymptomChatPage()),
-          );
+              context,
+              MaterialPageRoute(builder: (_) => const SymptomChatPage()));
         },
         backgroundColor: Colors.blueAccent,
-        icon: const Icon(Icons.add_circle_outline),
+        icon: const Icon(Icons.add),
         label: const Text("New Diagnosis"),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-
-      // This is the bottom navigation bar.
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,
@@ -57,18 +67,15 @@ class _HomePageState extends State<HomePage> {
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
+            icon: Icon(Icons.home_outlined),
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            activeIcon: Icon(Icons.history),
+            icon: Icon(Icons.history),
             label: 'History',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],

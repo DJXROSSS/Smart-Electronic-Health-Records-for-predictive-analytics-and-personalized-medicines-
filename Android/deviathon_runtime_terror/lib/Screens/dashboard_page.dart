@@ -3,105 +3,238 @@ import 'package:deviathon_runtime_terror/components/ai_insight_card.dart';
 import 'package:deviathon_runtime_terror/components/history_card.dart';
 import 'package:deviathon_runtime_terror/components/recent_symptoms_card.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // ✅ 1. Import shared_preferences
+import 'dart:convert';
+import 'package:shimmer/shimmer.dart';
+import 'package:http/http.dart' as http;
 
-// ✅ 2. Convert to a StatefulWidget
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+  const DashboardPage({Key? key}) : super(key: key);
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  // ✅ 3. Create a state variable to hold the user's name
-  String _userName = 'User'; // A default value
-  bool _isLoading = true;
+  String? username;
 
   @override
   void initState() {
     super.initState();
-    // ✅ 4. Call the function to load the name when the page opens
-    _loadUserName();
+    fetchUsername();
   }
 
-  Future<void> _loadUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    // Use the key 'name' that you saved during the login process
-    final savedName = prefs.getString('name');
+  Future<void> fetchUsername() async {
+    // Simulate network delay for loading effect
+    await Future.delayed(const Duration(milliseconds: 1500));
+    try {
+      final response =
+      await http.get(Uri.parse('http://10.156.194.228:5000/getUsername'));
 
-    if (savedName != null && savedName.isNotEmpty) {
-      // If a name is found, update the state to display it
-      setState(() {
-        _userName = savedName;
-      });
+      if (mounted) {
+        if (response.statusCode == 200) {
+          setState(() {
+            username = jsonDecode(response.body)['username'];
+          });
+        } else {
+          setState(() => username = "Ayush Sharma");
+          print("Failed to fetch username");
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => username = "User");
+      }
+      print("Error fetching username: $e");
     }
-    // Set loading to false after attempting to load the name
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: const Text(
-          "MedVault", // Changed from EHR System 1
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
+      backgroundColor: const Color(0xFFF4F6F8),
+      body: RefreshIndicator(
+        onRefresh: fetchUsername,
+        color: const Color(0xFF0D47A1),
+        child: CustomScrollView(
+          slivers: [
+            _buildSliverAppBar(),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    _buildHeader(),
+                    const SizedBox(height: 30),
+                    _buildQuickActions(),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+            ),
+            _buildSectionSliver("My Recent Symptoms", const RecentSymptomsCard()),
+            _buildSectionSliver("AI Insights", const AIInsightCard()),
+            _buildHistorySectionSliver(),
+            const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- WIDGET BUILDER METHODS ---
+
+  SliverAppBar _buildSliverAppBar() {
+    return SliverAppBar(
+      floating: true,
+      pinned: true,
+      snap: false,
+      elevation: 0.5,
+      shadowColor: Colors.grey[200],
+      backgroundColor: const Color(0xFFF4F6F8),
+      surfaceTintColor: const Color(0xFFF4F6F8),
+      title: const Text(
+        "ᴹᴱᴰᴵCONNECT",
+        style: TextStyle(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
+        ),
+      ),
+      centerTitle: false,
+      actions: [
+        IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.notifications_none_rounded, color: Colors.grey[700]),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.blue[100],
+            child: const Text("A", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0D47A1))),
           ),
         ),
-        centerTitle: false,
-        iconTheme: const IconThemeData(color: Colors.black87),
-        automaticallyImplyLeading: false, // Prevents a back button from appearing
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Welcome back,",
+          style: TextStyle(fontSize: 20, color: Colors.black54),
+        ),
+        const SizedBox(height: 4),
+        if (username == null)
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 42,
+              width: 220,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          )
+        else
+          Text(
+            username!,
+            style: const TextStyle(
+              fontSize: 38,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+              height: 1.2,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle("Quick Actions"),
+        GridView.count(
+          crossAxisCount: 4,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          children: [
+            _buildActionCard(Icons.add_circle_outline_rounded, "Add Record", () {}),
+            _buildActionCard(Icons.medical_services_outlined, "Find Doctor", () {}),
+            _buildActionCard(Icons.receipt_long_outlined, "Prescriptions", () {}),
+            _buildActionCard(Icons.pending_actions_outlined, "Reminders", () {}),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionCard(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 30, color: const Color(0xFF0D47A1)),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ],
+        ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show a loading circle while fetching name
-          : SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    );
+  }
+
+  SliverToBoxAdapter _buildSectionSliver(String title, Widget child) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Welcome back,",
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-                // ✅ 5. Use the state variable here instead of a hardcoded name
-                Text(_userName,
-                    style: const TextStyle(
-                        fontSize: 42, fontWeight: FontWeight.bold)),
-              ],
-            ),
-            const SizedBox(height: 35),
+            _buildSectionTitle(title),
+            child,
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
 
-            const Text("My Recent Symptoms",
-                style:
-                TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+  SliverToBoxAdapter _buildHistorySectionSliver() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: [
             const SizedBox(height: 10),
-            const RecentSymptomsCard(),
-
-            const SizedBox(height: 25),
-            const Text("AI Insights",
-                style:
-                TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 10),
-            const AIInsightCard(),
-
-            const SizedBox(height: 25),
-            const Text("History",
-                style:
-                TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 10),
+            _buildSectionHeaderWithAction("History", () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryPage()));
+            }),
             const HistoryCard(
                 id: "0001",
                 doctor: "Dr. John Smith",
@@ -109,6 +242,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 symptoms: "Fever, fatigue",
                 diagnosis: "Flu",
                 prescription: "Paracetamol, rest"),
+            const SizedBox(height: 12),
             const HistoryCard(
                 id: "0002",
                 doctor: "Dr. Amelia Lee",
@@ -116,31 +250,54 @@ class _DashboardPageState extends State<DashboardPage> {
                 symptoms: "Cough",
                 diagnosis: "Bronchitis",
                 prescription: "Azithromycin, steam inhalation"),
-
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const HistoryPage()));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text("Show More",
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
-              ),
-            ),
-            const SizedBox(height: 70),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeaderWithAction(String title, VoidCallback onViewAll) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          TextButton(
+            onPressed: onViewAll,
+            child: const Text(
+              "See All",
+              style: TextStyle(
+                color: Color(0xFF42A5F5),
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
