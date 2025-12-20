@@ -8,10 +8,10 @@ A full-stack healthcare platform designed to securely manage electronic health r
 
 **Smart EHR** is an integrated digital health platform that combines modern web and mobile technologies with machine learning to revolutionize healthcare data management.  
 The system allows patients and doctors to access, share, and analyze medical records securely while providing real-time disease predictions and appointment scheduling.
- 
-Link: https://smart-electronic-health-records-for.vercel.app/
 
 Built in **48 hours during a national-level hackathon (Deviathon 2025)**, this project was selected as a **finalist among 160+ teams**.
+
+**Website-Link**: https://smart-electronic-health-records-for.vercel.app/
 
 ---
 
