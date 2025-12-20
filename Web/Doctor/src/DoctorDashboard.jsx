@@ -772,7 +772,7 @@ export default function DoctorDashboard({ handleLogout }) {
         return;
       }
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
+        const res = await axios.get("https://smart-electronic-health-records-for-z1ix.onrender.com/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setDoctorProfile(res.data.doctor);
@@ -796,7 +796,7 @@ export default function DoctorDashboard({ handleLogout }) {
 
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/auth/marked-patients",
+          "https://smart-electronic-health-records-for-z1ix.onrender.com/api/auth/marked-patients",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -1020,7 +1020,7 @@ export default function DoctorDashboard({ handleLogout }) {
       console.log("Marking patient as seen:", patientId, patient.name);
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/mark-patient",
+        "https://smart-electronic-health-records-for-z1ix.onrender.com/api/auth/mark-patient",
         {
           patientId: patientId,
           patientName: patient.name,

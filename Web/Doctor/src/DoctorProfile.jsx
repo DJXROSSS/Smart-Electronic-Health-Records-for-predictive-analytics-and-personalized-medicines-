@@ -23,7 +23,7 @@ export default function DoctorProfile({ handleLogout }) {
       }
 
       try {
-        const res = await axios.get('http://localhost:5000/api/auth/me', {
+        const res = await axios.get('https://smart-electronic-health-records-for-z1ix.onrender.com/api/auth/me', {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         setDoctor(res.data.doctor);
@@ -66,7 +66,7 @@ export default function DoctorProfile({ handleLogout }) {
       const token = localStorage.getItem('token');
       console.log('Sending update request with data:', editedData);
       const res = await axios.put(
-        'http://localhost:5000/api/auth/update-profile',
+        'https://smart-electronic-health-records-for-z1ix.onrender.com/api/auth/update-profile',
         editedData,
         {
           headers: { 'Authorization': `Bearer ${token}` },

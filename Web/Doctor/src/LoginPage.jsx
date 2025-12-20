@@ -20,7 +20,7 @@ export default function LoginPage({ handleLogin }) {
       // Simulate network delay for better UX
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch('https://smart-electronic-health-records-for-z1ix.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
