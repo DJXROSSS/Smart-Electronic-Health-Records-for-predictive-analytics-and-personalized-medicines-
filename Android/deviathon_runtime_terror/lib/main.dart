@@ -1,4 +1,7 @@
+import 'package:deviathon_runtime_terror/Screens/EditProfilePage.dart';
+import 'package:deviathon_runtime_terror/Screens/HomePage.dart';
 import 'package:deviathon_runtime_terror/Screens/LoginPage.dart';
+import 'package:deviathon_runtime_terror/Screens/book_appointment_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {

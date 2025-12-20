@@ -1,309 +1,518 @@
+import 'package:deviathon_runtime_terror/Screens/EditProfilePage.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+// import 'package:deviathon_runtime_terror/screens/EditProfilePage.dart';
 
 class ProfilePage extends StatefulWidget {
-  // No longer needs parameters, as it will fetch its own data.
-  const ProfilePage({super.key});
+  final String name;
+  final String age;
+  final String gender;
+  final String contact;
+  final String allergies;
+  final String medication;
+  final String dob;
+  final String condition;
+
+  const ProfilePage({
+    super.key,
+    required this.name,
+    required this.age,
+    required this.gender,
+    required this.contact,
+    required this.allergies,
+    required this.medication,
+    required this.dob,
+    required this.condition,
+  });
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  bool _isLoading = true;
-  String? _errorMessage;
-  String _userEmail = ''; // To store the logged-in user's email
-
-  final Map<String, bool> enabledMap = {};
-  final Map<String, TextEditingController> controllers = {
-    // Initialize with empty controllers first
-    "Full Name": TextEditingController(),
-    "Date of Birth": TextEditingController(),
-    "Gender": TextEditingController(),
-    "Phone Number": TextEditingController(),
-    "Allergies": TextEditingController(),
-    "Current Medications": TextEditingController(),
-    "Chronic Conditions": TextEditingController(),
-    // Add other fields from your UI
-    "Age": TextEditingController(),
-    "Address": TextEditingController(),
-    "Contact Name": TextEditingController(),
-    "Relationship": TextEditingController(),
-    "Contact Phone": TextEditingController(),
-  };
+class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    // Initially, all fields are disabled
-    for (var key in controllers.keys) {
-      enabledMap[key] = false;
-    }
-    _fetchUserProfile();
-  }
-
-  Future<void> _fetchUserProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    // Assuming you save the user's email with the key 'email' after login
-    final email = prefs.getString('email');
-
-    if (email == null) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = "Could not find user email. Please log in again.";
-      });
-      return;
-    }
-
-    setState(() {
-      _userEmail = email;
-    });
-
-    // Replace with your actual server IP address
-    final url = Uri.parse('http://10.156.194.228:5000/api/user/profile/$email');
-
-    try {
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        // Populate controllers with data from the database
-        setState(() {
-          controllers["Full Name"]?.text = data['name'] ?? '';
-          controllers["Date of Birth"]?.text = data['dob'] ?? '';
-          controllers["Gender"]?.text = data['gender'] ?? '';
-          controllers["Phone Number"]?.text = data['contact'] ?? '';
-          controllers["Allergies"]?.text = data['allergies'] ?? '';
-          controllers["Current Medications"]?.text = data['medications'] ?? '';
-          controllers["Chronic Conditions"]?.text = data['conditions'] ?? '';
-          controllers["Age"]?.text = data['age']?.toString() ?? '';
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _errorMessage = "Failed to load profile. Server returned ${response.statusCode}";
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = "Network error: $e";
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _saveProfileChanges() async {
-    // Show a loading indicator on the button or screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Saving...")),
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
     );
-
-    final url = Uri.parse('http://10.156.194.228:5000/api/user/profile/update');
-
-    try {
-      final response = await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': _userEmail, // Crucial for identifying which user to update
-          'name': controllers['Full Name']?.text,
-          'dob': controllers['Date of Birth']?.text,
-          'gender': controllers['Gender']?.text,
-          'contact': controllers['Phone Number']?.text,
-          'allergies': controllers['Allergies']?.text,
-          'medications': controllers['Current Medications']?.text,
-          'conditions': controllers['Chronic Conditions']?.text,
-          'age': int.tryParse(controllers['Age']?.text ?? '0'),
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(backgroundColor: Colors.green, content: Text("Profile Saved Successfully!")),
-        );
-        // Optionally disable all fields again after saving
-        setState(() {
-          for (var key in enabledMap.keys) {
-            enabledMap[key] = false;
-          }
-        });
-      } else {
-        final errorData = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text("Error: ${errorData['error']}")),
-        );
-      }
-
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(backgroundColor: Colors.red, content: Text("Network Error: $e")),
-      );
-    }
+    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
+    
+    _animationController.forward();
   }
 
   @override
   void dispose() {
-    // Clean up the controllers when the widget is disposed.
-    for (var controller in controllers.values) {
-      controller.dispose();
-    }
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final hasData = widget.name.isNotEmpty;
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        leading: const BackButton(color: Colors.black),
-        backgroundColor: Colors.transparent,
         elevation: 0,
+        backgroundColor: Colors.transparent,
+        // leading: IconButton(
+        //   onPressed: () => Navigator.pop(context),
+        //   icon: Container(
+        //     padding: const EdgeInsets.all(8),
+        //     decoration: BoxDecoration(
+        //       color: Colors.white,
+        //       borderRadius: BorderRadius.circular(12),
+        //       boxShadow: [
+        //         BoxShadow(
+        //           color: Colors.black.withOpacity(0.05),
+        //           blurRadius: 8,
+        //           offset: const Offset(0, 2),
+        //         ),
+        //       ],
+        //     ),
+        //     child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Colors.black87),
+        //   ),
+        // ),
         title: const Text(
-          "Profile",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          "My Profile",
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-          ? Center(child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)))
-          : SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Profile Header
-            buildProfileHeader(),
-            const SizedBox(height: 24),
-
-            // Sections
-            buildSection("Personal Information", [
-              "Full Name",
-              "Date of Birth",
-              "Age",
-              "Gender",
-              "Phone Number",
-            ]),
-            buildSection("Medical History", [
-              "Allergies",
-              "Current Medications",
-              "Chronic Conditions",
-            ], isMulti: true),
-            buildSection("Emergency Contacts", [
-              "Contact Name",
-              "Relationship",
-              "Contact Phone",
-            ]),
-
-            // Save Button
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _saveProfileChanges,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+        centerTitle: true,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF4A90E2),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF4A90E2).withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-                child: const Text("Save Changes",
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
+              ],
+            ),
+            child: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EditProfilePage()),
+                );
+              },
+              icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
+              tooltip: 'Edit Profile',
+            ),
+          ),
+        ],
+      ),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: hasData ? _buildProfileContent() : _buildEmptyState(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.person_outline_rounded,
+                size: 80,
+                color: Colors.grey[400],
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 24),
+            Text(
+              "No Profile Information",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Add your details to get started",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EditProfilePage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4A90E2),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text(
+                "Create Profile",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // --- Helper Widgets for Cleaner Build Method ---
-
-  Widget buildProfileHeader() {
-    return Column(
-      children: [
-        Stack(
-          children: [
-            CircleAvatar(
-              radius: 60,
-              backgroundImage: const AssetImage('assets/images/woman.png'),
-              backgroundColor: Colors.blue[50],
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: CircleAvatar(
-                backgroundColor: Colors.blueAccent,
-                radius: 18,
-                child: const Icon(Icons.edit, size: 18, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        // Use the controller's text for a dynamic name display
-        Text(controllers["Full Name"]?.text ?? 'User Name',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const Text("Patient ID: 123456", style: TextStyle(color: Colors.grey)),
-      ],
-    );
-  }
-
-  Widget buildSection(String title, List<String> fields, {bool isMulti = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        ...fields.map((field) => buildTextField(field, multi: isMulti)).toList(),
-      ],
-    );
-  }
-
-  Widget buildTextField(String label, {bool multi = false}) {
-    bool enabled = enabledMap[label] ?? false;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+  Widget _buildProfileContent() {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 6),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: controllers[label],
-                  enabled: enabled,
-                  maxLines: multi ? 3 : 1,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => setState(() => enabledMap[label] = false),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: enabled ? Colors.white : Colors.grey[200],
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+          // Profile Header Card
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF4A90E2), Color(0xFF357ABD)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF4A90E2).withOpacity(0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        border: Border.all(color: Colors.white, width: 4),
+                      ),
+                      child: const Icon(
+                        Icons.person_rounded,
+                        size: 50,
+                        color: Color(0xFF4A90E2),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xFF4A90E2), width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.verified_rounded,
+                          size: 18,
+                          color: Color(0xFF4CAF50),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  widget.name.isNotEmpty ? widget.name : "User",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    "Patient ID: 123456",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () => setState(() => enabledMap[label] = !enabled),
-                icon: Icon(enabled ? Icons.done : Icons.edit, color: Colors.blueAccent),
-              ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 32),
+
+          // Personal Information Section
+          _buildSection(
+            "Personal Information",
+            Icons.person_outline_rounded,
+            [
+              _buildInfoCard("Full Name", widget.name, Icons.badge_outlined),
+              _buildInfoCard("Date of Birth", widget.dob, Icons.cake_outlined),
+              _buildInfoCard("Age", widget.age.isNotEmpty ? "${widget.age} years" : "Not specified", Icons.calendar_today_outlined),
+              _buildInfoCard("Gender", widget.gender, Icons.wc_outlined),
+              _buildInfoCard("Contact", widget.contact, Icons.phone_outlined),
             ],
           ),
+
+          const SizedBox(height: 24),
+
+          // Medical Information Section
+          _buildSection(
+            "Medical Information",
+            Icons.medical_services_outlined,
+            [
+              _buildInfoCard("Allergies", widget.allergies.isNotEmpty ? widget.allergies : "None reported", Icons.healing_outlined, isMultiline: true),
+              _buildInfoCard("Current Medications", widget.medication.isNotEmpty ? widget.medication : "None", Icons.medication_outlined, isMultiline: true),
+              _buildInfoCard("Chronic Conditions", widget.condition.isNotEmpty ? widget.condition : "None reported", Icons.favorite_border_rounded, isMultiline: true),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Quick Actions
+          _buildQuickActionsSection(),
+
+          const SizedBox(height: 80),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSection(String title, IconData icon, List<Widget> children) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4A90E2).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: const Color(0xFF4A90E2),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildInfoCard(String label, String value, IconData icon, {bool isMultiline = false}) {
+    final displayValue = value.isNotEmpty ? value : "Not specified";
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: isMultiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF4A90E2).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 20, color: const Color(0xFF4A90E2)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  displayValue,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4A90E2).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.bolt_rounded,
+                size: 20,
+                color: Color(0xFF4A90E2),
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              "Quick Actions",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionButton(
+                "Share Profile",
+                Icons.share_rounded,
+                const Color(0xFF4A90E2),
+                () {},
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionButton(
+                "Download",
+                Icons.download_rounded,
+                const Color(0xFF4CAF50),
+                () {},
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, size: 24, color: color),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

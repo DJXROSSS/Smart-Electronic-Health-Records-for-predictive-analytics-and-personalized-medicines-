@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../Screens/history_page.dart';
 
 class RecentSymptomsCard extends StatelessWidget {
-  const RecentSymptomsCard({Key? key}) : super(key: key);
+  const RecentSymptomsCard({super.key});
 
   @override
   Widget build(BuildContext context) {
