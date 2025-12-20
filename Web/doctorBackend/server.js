@@ -10,8 +10,8 @@ import doctorRoutes from "./models/doctor.js";
 dotenv.config();
 const app = express();
 const corsOptions = {
-  origin: 'http://localhost:5173',
-  
+  origin: ['http://localhost:5173', 'https://smart-electronic-health-records-for.vercel.app'],
+  credentials: true,
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
