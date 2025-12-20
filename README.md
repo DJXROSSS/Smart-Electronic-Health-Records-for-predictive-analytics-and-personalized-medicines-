@@ -1,5 +1,3 @@
-# Smart-Electronic-Health-Records-for-predictive-analytics-and-personalized-medicines-
-
 # Smart Electronic Health Records for Predictive Analytics and Personalized Medicines
 
 A full-stack healthcare platform designed to securely manage electronic health records (EHRs), enable efficient patient–doctor interaction, and leverage predictive analytics for personalized treatment recommendations.
@@ -10,6 +8,8 @@ A full-stack healthcare platform designed to securely manage electronic health r
 
 **Smart EHR** is an integrated digital health platform that combines modern web and mobile technologies with machine learning to revolutionize healthcare data management.  
 The system allows patients and doctors to access, share, and analyze medical records securely while providing real-time disease predictions and appointment scheduling.
+ 
+Link: https://smart-electronic-health-records-for.vercel.app/
 
 Built in **48 hours during a national-level hackathon (Deviathon 2025)**, this project was selected as a **finalist among 160+ teams**.
 
